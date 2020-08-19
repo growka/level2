@@ -45,6 +45,7 @@ public class ChatClient {
 
             chatWindow.append(sendField.getText()+"\n");
             sendField.setText("");
+            sendField.requestFocus();
 
 
         }
