@@ -1,6 +1,6 @@
-package service;
+package server.service;
 
-import inter.AuthService;
+import server.inter.AuthService;
 
 import java.util.LinkedList;
 import java.util.List;

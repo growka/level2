@@ -1,7 +1,7 @@
-package service;
+package server.service;
 
-import handler.ClientHandler;
-import inter.Server;
+import server.handler.ClientHandler;
+import server.inter.Server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -36,8 +36,6 @@ public class ServerImpl implements Server {
         }
     }
 
-
-
     @Override
     public boolean isNickBusy(String nick) {
         for (ClientHandler c : clients) {
@@ -46,6 +44,15 @@ public class ServerImpl implements Server {
             }
         }
         return false;
+    }
+
+    @Override
+    public void broadcastClientList() {
+        StringBuilder builder = new StringBuilder();
+        for (ClientHandler c:clients) {
+            builder.append(c.getNick() + " ");
+        }
+        broadcastMsg(builder.toString());
     }
 
     @Override
@@ -64,6 +71,16 @@ public class ServerImpl implements Server {
     @Override
     public synchronized void unsubcribe(ClientHandler client) {
         clients.remove(client);
+    }
+
+    @Override
+    public synchronized void sndMsgToClient(ClientHandler from, String to, String msg) {
+        for (ClientHandler c : clients) {
+            if (c.getNick().equals(to)) {
+                c.sendMsg("from " + from.getNick()+ ":" + msg);
+                from.sendMsg("client " + to + ": " + msg);
+            }
+        }
     }
 
     @Override

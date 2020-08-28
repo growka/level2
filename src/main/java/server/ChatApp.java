@@ -1,4 +1,6 @@
-import service.ServerImpl;
+package server;
+
+import server.service.ServerImpl;
 
 import java.io.IOException;
 

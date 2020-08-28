@@ -1,6 +1,6 @@
-package handler;
+package server.handler;
 
-import inter.Server;
+import server.inter.Server;
 
 
 import java.io.DataInputStream;
@@ -30,8 +30,15 @@ public class ClientHandler {
             this.nick = "";
             new Thread(() -> {
                 try {
-                    authentication();
-                    readMessage();
+                    long a = System.currentTimeMillis();
+                    while ((a - System.currentTimeMillis()) > -120000) {
+                        if (authentication()) {
+                            readMessage();
+                        } else {
+                            System.out.println("Клиент не авторизовался в течении 120 секунд");
+                        }
+                    }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
@@ -43,7 +50,7 @@ public class ClientHandler {
         }
     }
 
-    private void authentication() throws IOException {
+    private boolean authentication() throws IOException {
         while (true) {
             String str = in.readUTF();
             if (str.startsWith("/auth")) {
@@ -55,12 +62,14 @@ public class ClientHandler {
                         this.nick = nick;
                         server.broadcastMsg(this.nick + " зашёл в чат.");
                         server.subcribe(this);
-                        return;
+                        return true;
                     } else {
                         sendMsg("Учетная запись уже используется!");
+                        return false;
                     }
                 } else {
                     sendMsg("Неверный логин/пароль");
+                    return false;
                 }
             }
         }
@@ -79,9 +88,20 @@ public class ClientHandler {
     public void readMessage() throws IOException {
         while (true) {
             String clientStr = in.readUTF();
-            System.out.println(nick + ": " + clientStr);
-            if (clientStr.equals("/exit")) {
-                return;
+            if (clientStr.startsWith("/")) {
+                if (clientStr.equals("/exit")) {
+                    return;
+                }
+                if (clientStr.startsWith("/clients")) {
+                    server.broadcastClientList();
+                }
+                if (clientStr.startsWith("/w")) {
+                    String [] strArray = clientStr.split("\\s");
+                    String nickname = strArray[1];
+                    String msg = clientStr.substring(4 + nickname.length());
+                    server.sndMsgToClient(this,nickname,msg);
+                }
+                    continue;
             }
             server.broadcastMsg(nick + ": " + clientStr);
         }

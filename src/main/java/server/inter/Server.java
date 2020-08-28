@@ -1,7 +1,7 @@
-package inter;
+package server.inter;
 
-import handler.ClientHandler;
-import service.AuthServiceImpl;
+import server.handler.ClientHandler;
+import server.service.AuthServiceImpl;
 
 public interface Server {
 
@@ -9,11 +9,15 @@ public interface Server {
 
     boolean isNickBusy(String Nick);
 
+    void broadcastClientList();
+
     void broadcastMsg(String msg);
 
     void subcribe(ClientHandler client);
 
     void unsubcribe(ClientHandler client);
+
+    void sndMsgToClient(ClientHandler from, String to, String msg);
 
     AuthServiceImpl getAuthService();
 }
